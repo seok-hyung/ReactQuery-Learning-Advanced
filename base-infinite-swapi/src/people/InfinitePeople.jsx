@@ -1,8 +1,8 @@
 import InfiniteScroll from 'react-infinite-scroller'
 import { Person } from './Person'
 import { useInfiniteQuery } from '@tanstack/react-query'
-
-const initialUrl = 'https://swapi.dev/api/people/'
+const baseUrl = 'https://swapi-node.vercel.app'
+const initialUrl = baseUrl + '/api/people'
 const fetchUrl = async url => {
   const response = await fetch(url)
   return response.json()
@@ -21,11 +21,11 @@ export function InfinitePeople() {
     queryKey: ['sw-people'],
     queryFn: ({ pageParam = initialUrl }) => fetchUrl(pageParam),
     getNextPageParam: lastPage => {
-      return lastPage.next || undefined
+      return lastPage.next ? baseUrl + lastPage.next : undefined
     },
   })
 
-  if (isFetching) {
+  if (isLoading) {
     return <div className="loading">Loading...</div>
   }
   if (isError) {
@@ -33,26 +33,29 @@ export function InfinitePeople() {
   }
 
   return (
-    <InfiniteScroll
-      loadMore={() => {
-        if (!isFetching) {
-          fetchNextPage()
-        }
-      }}
-      hasMore={hasNextPage}
-    >
-      {data.pages.map(pageData => {
-        return pageData.results.map(person => {
-          return (
-            <Person
-              key={person.name}
-              name={person.name}
-              hairColor={person.hair_color}
-              eyeColor={person.eye_color}
-            />
-          )
-        })
-      })}
-    </InfiniteScroll>
+    <>
+      {isFetching && <div className="loading">Loading...</div>}
+      <InfiniteScroll
+        loadMore={() => {
+          if (!isFetching) {
+            fetchNextPage()
+          }
+        }}
+        hasMore={hasNextPage}
+      >
+        {data.pages.map(pageData => {
+          return pageData.results.map(person => {
+            return (
+              <Person
+                key={person.fields.name}
+                name={person.fields.name}
+                hairColor={person.fields.hair_color}
+                eyeColor={person.fields.eye_color}
+              />
+            )
+          })
+        })}
+      </InfiniteScroll>
+    </>
   )
 }
