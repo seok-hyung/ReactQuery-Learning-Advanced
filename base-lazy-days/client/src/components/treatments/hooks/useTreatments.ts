@@ -1,8 +1,9 @@
+import { queryClient } from '@/react-query/queryClient'
 import type { Treatment } from '@shared/types'
 
 import { axiosInstance } from '@/axiosInstance'
 import { queryKeys } from '@/react-query/constants'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 // for when we need a query function for useQuery
 async function getTreatments(): Promise<Treatment[]> {
@@ -17,4 +18,13 @@ export function useTreatments(): Treatment[] {
     queryFn: getTreatments,
   })
   return data
+}
+
+// 캐시를 채우는 것이므로 아무것도 반환하지 않을 것이다.
+export function usePrefetchTreatments(): void {
+  const queryClient = useQueryClient()
+  queryClient.prefetchQuery({
+    queryKey: [queryKeys.treatments],
+    queryFn: getTreatments,
+  })
 }
