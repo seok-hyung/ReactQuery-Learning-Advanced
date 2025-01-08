@@ -17,6 +17,13 @@ function errorHandler(errorMsg: string) {
 }
 
 export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 600000, // 10분
+      gcTime: 900000, // 15분 (staleTime이 gcTime보다 큰건 말이 안됨)
+      refetchOnWindowFocus: false,
+    },
+  },
   queryCache: new QueryCache({
     onError: error => {
       errorHandler(error.message)
