@@ -11,6 +11,14 @@ import { axiosInstance } from '@/axiosInstance'
 import { queryKeys } from '@/react-query/constants'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
+// 사실 이런 공통 옵션은 훅 안에 들어가야 하는 것은 아니다.
+// 따라서 이렇게 최상단으로 뺐음.
+// for useQuery and prefetchQuery
+const commonOptions = {
+  staleTime: 0,
+  gcTime: 30000,
+}
+
 // for useQuery call
 async function getAppointments(
   year: string,
@@ -63,6 +71,7 @@ export function useAppointments() {
   /** ****************** END 2: filter appointments  ******************** */
   /** ****************** START 3: useQuery  ***************************** */
   // useQuery call for appointments for the current monthYear
+
   const queryClient = useQueryClient()
   useEffect(() => {
     const nextMonthYear = getNewMonthYear(monthYear, 1)
@@ -73,6 +82,7 @@ export function useAppointments() {
         nextMonthYear.month,
       ],
       queryFn: () => getAppointments(nextMonthYear.year, nextMonthYear.month),
+      ...commonOptions,
     })
   }, [queryClient, monthYear])
 
@@ -88,7 +98,13 @@ export function useAppointments() {
     queryKey: [queryKeys.appointments, monthYear.year, monthYear.month],
     queryFn: () => getAppointments(monthYear.year, monthYear.month),
     select: data => selectFn(data, showAll),
+
+    // query options overriding
+    refetchOnWindowFocus: true,
+    // refetchInterval: 1000, // every second; not recommended for production
+    ...commonOptions,
   })
+  // 이러한 몇가지 리페치는 프리페치에 실제로 적용되지 않지만, stale time과 캐시 시간은 프레치에 적용됩니다.
 
   /** ****************** END 3: useQuery  ******************************* */
 
