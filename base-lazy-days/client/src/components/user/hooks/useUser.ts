@@ -30,7 +30,8 @@ export function useUser() {
     enabled: !!userId, // 이중 논리 연산자
     queryKey: generateUserKey(userId, userToken),
     queryFn: () => getUser(userId, userToken),
-    staleTime: Infinity, // 데이터가 절대 stale 상태가 되지 않게 설정
+    staleTime: Infinity,
+    // 데이터가 절대 stale 상태가 되지 않게 설정
     // 즉 데이터는 가비지 컬렉션 시간이 만료되지 않는 한, 리페칭을 하지 않는다
     // 이 데이터는 사용자 스스로 업데이트할 경우에만 변경되고 리페칭이 일어난다.
     // 사용자가 새로운 이름이나 새로운 주소를 입력하는 경우이다!!
@@ -41,12 +42,18 @@ export function useUser() {
 
   // meant to be called from useAuth
   function updateUser(newUser: User): void {
-    // TODO: update the user in the query cache
+    queryClient.setQueryData(
+      generateUserKey(newUser.id, newUser.token),
+      newUser
+    );
   }
 
   // meant to be called from useAuth
   function clearUser() {
-    // TODO: reset user to null in query cache
+    // reset user to null in query cache
+    queryClient.removeQueries({
+      queryKey: [queryKeys.appointments, queryKeys.user],
+    });
   }
 
   return { user, updateUser, clearUser };
