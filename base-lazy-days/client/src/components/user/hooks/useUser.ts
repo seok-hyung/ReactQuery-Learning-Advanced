@@ -28,7 +28,7 @@ export function useUser() {
 
   const { data: user } = useQuery({
     enabled: !!userId, // 이중 논리 연산자
-    queryKey: generateUserKey(userId, userToken),
+    queryKey: generateUserKey(userId),
     queryFn: () => getUser(userId, userToken),
     staleTime: Infinity,
     // 데이터가 절대 stale 상태가 되지 않게 설정
@@ -42,10 +42,7 @@ export function useUser() {
 
   // meant to be called from useAuth
   function updateUser(newUser: User): void {
-    queryClient.setQueryData(
-      generateUserKey(newUser.id, newUser.token),
-      newUser
-    );
+    queryClient.setQueryData(generateUserKey(newUser.id), newUser);
   }
 
   // meant to be called from useAuth
