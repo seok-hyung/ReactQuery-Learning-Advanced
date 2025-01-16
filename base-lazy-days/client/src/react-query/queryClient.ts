@@ -1,4 +1,9 @@
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientConfig,
+} from "@tanstack/react-query";
 import { toast } from "@/components/app/toast";
 
 function createTitle(errorMsg: string, actionType: "query" | "mutation") {
@@ -19,7 +24,10 @@ function errorHandler(title: string) {
   }
 }
 
-export const queryClient = new QueryClient({
+// 이것이 'QueryClientConfig' 타입이라고 명시할 겁니다
+// 이 옵션을 변경하고 싶을 때
+// 어떤 것이 허용되고 허용되지 않는지 알 수 있도록 도와줄 것입니다
+export const queryClientOptions: QueryClientConfig = {
   defaultOptions: {
     queries: {
       staleTime: 600000, // 10분
@@ -38,4 +46,6 @@ export const queryClient = new QueryClient({
       errorHandler(error.message);
     },
   }),
-});
+};
+
+export const queryClient = new QueryClient(queryClientOptions);
